@@ -1,5 +1,6 @@
 const path = require('node:path');
 
+const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const express = require('express');
 
@@ -9,6 +10,7 @@ const { logToRequestLogsFileMiddleware } = require('./middlewares/logEvents');
 const { verifyJWT } = require('./middlewares/verifyJWT');
 const { router: employeesRouter } = require('./routes/api/employees');
 const { router: authRouter } = require('./routes/auth');
+const { router: refreshRouter } = require('./routes/refresh');
 const { router: registerRouter } = require('./routes/register');
 const { router: rootRouter } = require('./routes/root');
 
@@ -19,6 +21,7 @@ const PORT = process.env.PORT || 3000;
 // ===*===*===*===*===*===*  CUSTOM  MIDDLEWARES  *===*===*===*===*===*===*===
 
 app.use(logToRequestLogsFileMiddleware);
+app.use(cookieParser());
 app.use(cors(corsOptions));
 
 // ===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===
@@ -42,6 +45,7 @@ app.use('/', express.static(path.join(__dirname, '/public')));
 app.use('/', rootRouter);
 app.use('/auth', authRouter);
 app.use('/employees', verifyJWT, employeesRouter); // Protecting only employee route with JWTs
+app.use('/refresh', refreshRouter);
 app.use('/register', registerRouter);
 
 // Catch-all route, to serve custom 404 page
