@@ -9,7 +9,9 @@ const genericLogger = logType => {
 };
 
 const logError = genericLogger('ERROR');
+const logInfo = genericLogger('INFO');
 
 module.exports = {
   logError,
+  logInfo,
 };
