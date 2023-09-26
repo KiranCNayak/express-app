@@ -38,7 +38,7 @@ const deleteEmployee = (req, res) => {
   // If the id searched doesn't exist in our DB, then employees.find() will return undefined.
   if (!employee) {
     return res.status(400).json({
-      message: `Employee with id=${id} was not found!`,
+      message: `Employee with id = ${id} was not found!`,
     });
   }
 

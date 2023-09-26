@@ -39,7 +39,7 @@ const createNewUser = async (req, res) => {
 
     await fsPromises.writeFile(
       path.join(__dirname, '..', 'model', 'users.json'),
-      JSON.stringify(usersDB.users),
+      JSON.stringify(usersDB.users, null, 2),
     );
 
     res.status(201).json({

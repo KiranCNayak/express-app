@@ -6,6 +6,7 @@ const express = require('express');
 const { corsOptions } = require('./config/corsOptions');
 const { errorHandler } = require('./middlewares/errorHandler');
 const { logToRequestLogsFileMiddleware } = require('./middlewares/logEvents');
+const { verifyJWT } = require('./middlewares/verifyJWT');
 const { router: employeesRouter } = require('./routes/api/employees');
 const { router: authRouter } = require('./routes/auth');
 const { router: registerRouter } = require('./routes/register');
@@ -40,7 +41,7 @@ app.use('/', express.static(path.join(__dirname, '/public')));
 
 app.use('/', rootRouter);
 app.use('/auth', authRouter);
-app.use('/employees', employeesRouter);
+app.use('/employees', verifyJWT, employeesRouter); // Protecting only employee route with JWTs
 app.use('/register', registerRouter);
 
 // Catch-all route, to serve custom 404 page
