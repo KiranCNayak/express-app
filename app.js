@@ -5,7 +5,7 @@ const express = require('express');
 
 const { corsOptions } = require('./config/corsOptions');
 const { errorHandler } = require('./middlewares/errorHandler');
-const { logToFile } = require('./middlewares/logEvents');
+const { logToRequestLogsFileMiddleware } = require('./middlewares/logEvents');
 const { router: employeesRouter } = require('./routes/api/employees');
 const { router: rootRouter } = require('./routes/root');
 
@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3000;
 
 // ===*===*===*===*===*===*  CUSTOM  MIDDLEWARES  *===*===*===*===*===*===*===
 
-app.use(logToFile);
+app.use(logToRequestLogsFileMiddleware);
 app.use(cors(corsOptions));
 
 // ===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===

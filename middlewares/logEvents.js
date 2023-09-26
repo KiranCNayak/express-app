@@ -30,7 +30,7 @@ const logEvents = async (message, logFileName) => {
   }
 };
 
-const logToFile = (req, res, next) => {
+const logToRequestLogsFileMiddleware = (req, res, next) => {
   // Log each request to the server, and store it in the logs folder
   logEvents(
     `${req.method}\t\t${req.headers.origin}\t\t${req.url}\t\t${res.statusCode}`,
@@ -42,5 +42,5 @@ const logToFile = (req, res, next) => {
 
 module.exports = {
   logEvents,
-  logToFile,
+  logToRequestLogsFileMiddleware,
 };
