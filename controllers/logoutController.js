@@ -33,7 +33,14 @@ const handleLogout = async (req, res) => {
 
   if (!foundUser) {
     // Clear the cookie, since the cookie with 'jwt' property was found
-    res.clearCookie('jwt', { httpOnly: true, maxAge: ONE_DAY_IN_MILLIS });
+    res.clearCookie('jwt', {
+      httpOnly: true,
+
+      // Both of these are needed due to a frontend CORS issue, as told by Dave Gray
+      //  in this 6th video of his playlist. (JWT Authentication)
+      sameSite: 'None',
+      secure: true,
+    });
     return res.sendStatus(204);
   }
 
@@ -55,7 +62,14 @@ const handleLogout = async (req, res) => {
     JSON.stringify(updatedUsersArray, null, 2),
   );
 
-  res.clearCookie('jwt', { httpOnly: true, maxAge: ONE_DAY_IN_MILLIS });
+  res.clearCookie('jwt', {
+    httpOnly: true,
+
+    // Both of these are needed due to a frontend CORS issue, as told by Dave Gray
+    //  in this 6th video of his playlist. (JWT Authentication)
+    sameSite: 'None',
+    secure: true,
+  });
 
   res.sendStatus(204);
 };

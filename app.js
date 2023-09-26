@@ -6,6 +6,7 @@ const express = require('express');
 
 const { corsOptions } = require('./config/corsOptions');
 const { errorHandler } = require('./middlewares/errorHandler');
+const { credentials } = require('./middlewares/credentials');
 const { logToRequestLogsFileMiddleware } = require('./middlewares/logEvents');
 const { verifyJWT } = require('./middlewares/verifyJWT');
 const { router: employeesRouter } = require('./routes/api/employees');
@@ -22,6 +23,9 @@ const PORT = process.env.PORT || 3000;
 // ===*===*===*===*===*===*  CUSTOM  MIDDLEWARES  *===*===*===*===*===*===*===
 
 app.use(logToRequestLogsFileMiddleware);
+// This HAS to be above 'cors' middleware. It is an issue that will be seen
+//  in the frontend (As told by Dave Gray in 6th video of his Playlist)
+app.use(credentials);
 app.use(cookieParser());
 app.use(cors(corsOptions));
 

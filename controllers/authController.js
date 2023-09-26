@@ -75,6 +75,11 @@ const loginUser = async (req, res) => {
     res.cookie('jwt', refreshToken, {
       httpOnly: true,
       maxAge: ONE_DAY_IN_MILLIS,
+
+      // Both of these are needed due to a frontend CORS issue, as told by Dave Gray
+      //  in this 6th video of his playlist. (JWT Authentication)
+      sameSite: 'None',
+      secure: true,
     });
 
     res.json({
