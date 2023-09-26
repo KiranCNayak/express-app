@@ -5,6 +5,8 @@ const express = require('express');
 
 const { errorHandler } = require('./middlewares/errorHandler');
 const { logToFile } = require('./middlewares/logEvents');
+const { router: rootRouter } = require('./routes/root');
+const { router: subdirRouter } = require('./routes/subdir');
 
 const app = express();
 
@@ -47,22 +49,13 @@ app.use(express.json());
 
 // To serve static data like images,css, gifs and videos.
 //  With this setup you don't need to put relative path to them in html files.
-app.use(express.static(path.join(__dirname, '/public')));
+app.use('/', express.static(path.join(__dirname, '/public')));
+app.use('/subdir/', express.static(path.join(__dirname, '/public')));
 
 // ===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===
 
-app.get('^/$|^/index(.html)?', (_req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'index.html'));
-});
-
-app.get('^/new-page(.html)?', (_req, res) => {
-  res.sendFile(path.join(__dirname, 'views', 'new-page.html'));
-});
-
-// We can easily do re-direction in Express as follows
-app.get('^/old-page(.html)?', (_req, res) => {
-  res.redirect('new-page.html');
-});
+app.use('/', rootRouter);
+app.use('/subdir', subdirRouter);
 
 // Catch-all route, to serve custom 404 page
 // REM: W/o 404 status set explicitly using res.status(404)..., default status would've been 200, as the 404 file was found on the server (so 200)
