@@ -79,7 +79,7 @@ const loginUser = async (req, res) => {
       // Both of these are needed due to a frontend CORS issue, as told by Dave Gray
       //  in this 6th video of his playlist. (JWT Authentication)
       sameSite: 'None',
-      secure: true,
+      secure: true, // Comment this property when using Thunder client, it doesn't work if set to true. But it should be true for testing on Chrome / in Production.
     });
 
     res.json({
