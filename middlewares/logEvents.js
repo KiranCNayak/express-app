@@ -4,7 +4,7 @@ const path = require('node:path');
 const format = require('date-fns/format');
 const { v4: uuid } = require('uuid');
 
-const { logError } = require('../utils/Utils');
+const { logInfo } = require('../utils/Utils');
 
 const fsPromises = fs.promises;
 
@@ -36,7 +36,7 @@ const logToFile = (req, res, next) => {
     `${req.method}\t\t${req.headers.origin}\t\t${req.url}\t\t${res.statusCode}`,
     'requestLogs.txt',
   );
-  logError(`${req.method} ${req.path}`);
+  logInfo(`${req.method} ${req.path}`);
   next();
 };
 
