@@ -7,6 +7,7 @@ const { corsOptions } = require('./config/corsOptions');
 const { errorHandler } = require('./middlewares/errorHandler');
 const { logToRequestLogsFileMiddleware } = require('./middlewares/logEvents');
 const { router: employeesRouter } = require('./routes/api/employees');
+const { router: registerRouter } = require('./routes/register');
 const { router: rootRouter } = require('./routes/root');
 
 const app = express();
@@ -38,6 +39,7 @@ app.use('/', express.static(path.join(__dirname, '/public')));
 
 app.use('/', rootRouter);
 app.use('/employees', employeesRouter);
+app.use('/register', registerRouter);
 
 // Catch-all route, to serve custom 404 page
 // REM: W/o 404 status set explicitly using res.status(404)..., default status would've been 200, as the 404 file was found on the server (so 200)
