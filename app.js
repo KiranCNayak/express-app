@@ -3,8 +3,10 @@ const path = require('node:path');
 const cors = require('cors');
 const express = require('express');
 
+const { corsOptions } = require('./config/corsOptions');
 const { errorHandler } = require('./middlewares/errorHandler');
 const { logToFile } = require('./middlewares/logEvents');
+const { router: employeesRouter } = require('./routes/api/employees');
 const { router: rootRouter } = require('./routes/root');
 const { router: subdirRouter } = require('./routes/subdir');
 
@@ -15,24 +17,6 @@ const PORT = process.env.PORT || 3000;
 // ===*===*===*===*===*===*  CUSTOM  MIDDLEWARES  *===*===*===*===*===*===*===
 
 app.use(logToFile);
-
-const whiteList = [
-  'http://localhost:3000',
-  'https://localhost:3000',
-  'http://127.0.0.1:3000',
-  'https://127.0.0.1:3000',
-];
-const corsOptions = {
-  origin: (origin, callback) => {
-    // NOTE: Here, !origin at the end is used to catch the localhost or 127.0.0.1 route, which comes as undefined to origin
-    if (whiteList.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  optionsSuccessStatus: 200,
-};
 app.use(cors(corsOptions));
 
 // ===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===
@@ -56,6 +40,7 @@ app.use('/subdir/', express.static(path.join(__dirname, '/public')));
 
 app.use('/', rootRouter);
 app.use('/subdir', subdirRouter);
+app.use('/employees', employeesRouter);
 
 // Catch-all route, to serve custom 404 page
 // REM: W/o 404 status set explicitly using res.status(404)..., default status would've been 200, as the 404 file was found on the server (so 200)
