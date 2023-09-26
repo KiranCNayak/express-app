@@ -7,6 +7,7 @@ const { corsOptions } = require('./config/corsOptions');
 const { errorHandler } = require('./middlewares/errorHandler');
 const { logToRequestLogsFileMiddleware } = require('./middlewares/logEvents');
 const { router: employeesRouter } = require('./routes/api/employees');
+const { router: authRouter } = require('./routes/auth');
 const { router: registerRouter } = require('./routes/register');
 const { router: rootRouter } = require('./routes/root');
 
@@ -38,6 +39,7 @@ app.use('/', express.static(path.join(__dirname, '/public')));
 // ===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===
 
 app.use('/', rootRouter);
+app.use('/auth', authRouter);
 app.use('/employees', employeesRouter);
 app.use('/register', registerRouter);
 
