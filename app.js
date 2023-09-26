@@ -1,9 +1,39 @@
-const express = require('express');
 const path = require('node:path');
+
+const cors = require('cors');
+const express = require('express');
+
+const { errorHandler } = require('./middlewares/errorHandler');
+const { logToFile } = require('./middlewares/logEvents');
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
+
+// ===*===*===*===*===*===*  CUSTOM  MIDDLEWARES  *===*===*===*===*===*===*===
+
+app.use(logToFile);
+
+const whiteList = [
+  'http://localhost:3000',
+  'https://localhost:3000',
+  'http://127.0.0.1:3000',
+  'https://127.0.0.1:3000',
+];
+const corsOptions = {
+  origin: (origin, callback) => {
+    // NOTE: Here, !origin at the end is used to catch the localhost or 127.0.0.1 route, which comes as undefined to origin
+    if (whiteList.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  optionsSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
+
+// ===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===
 
 // ===*===*===*===*===*===  BUILT-IN  MIDDLEWARES  ===*===*===*===*===*===*===
 
@@ -39,6 +69,11 @@ app.get('^/old-page(.html)?', (_req, res) => {
 app.get('/*', (_req, res) => {
   res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
 });
+
+// Our custom error handler
+// This should be at the end, always. Because, it will catch errors
+// of all functions above it.
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
