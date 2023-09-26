@@ -5,6 +5,22 @@ const app = express();
 
 const PORT = process.env.PORT || 3000;
 
+// ===*===*===*===*===*===  BUILT-IN  MIDDLEWARES  ===*===*===*===*===*===*===
+
+// Built-in middleware to handle urlencoded data i.e., for HTML form data:
+// ‘content-type: application/x-www-form-urlencoded’
+app.use(express.urlencoded({ extended: false }));
+
+// express.json() is a body parser for post request except HTML "POST" form,
+// whereas express.urlencoded(...) is a body parser for HTML "POST" form.
+app.use(express.json());
+
+// To serve static data like images,css, gifs and videos.
+//  With this setup you don't need to put relative path to them in html files.
+app.use(express.static(path.join(__dirname, '/public')));
+
+// ===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===
+
 app.get('^/$|^/index(.html)?', (_req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
