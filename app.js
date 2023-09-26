@@ -8,7 +8,6 @@ const { errorHandler } = require('./middlewares/errorHandler');
 const { logToFile } = require('./middlewares/logEvents');
 const { router: employeesRouter } = require('./routes/api/employees');
 const { router: rootRouter } = require('./routes/root');
-const { router: subdirRouter } = require('./routes/subdir');
 
 const app = express();
 
@@ -34,12 +33,10 @@ app.use(express.json());
 // To serve static data like images,css, gifs and videos.
 //  With this setup you don't need to put relative path to them in html files.
 app.use('/', express.static(path.join(__dirname, '/public')));
-app.use('/subdir/', express.static(path.join(__dirname, '/public')));
 
 // ===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===*===
 
 app.use('/', rootRouter);
-app.use('/subdir', subdirRouter);
 app.use('/employees', employeesRouter);
 
 // Catch-all route, to serve custom 404 page
