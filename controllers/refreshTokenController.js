@@ -39,9 +39,16 @@ const getAccessTokenFromRefreshToken = (req, res) => {
         return res.sendStatus(403);
       }
 
-      // Reset the refreshToken in the DB
+      const ROLES_ARRAY = Object.values(foundUser.roles);
+
+      // Re-create an 'accessToken' using the existing 'refreshToken' in cookies
       const accessToken = jwt.sign(
-        { username: decoded.username },
+        {
+          UserInfo: {
+            roles: ROLES_ARRAY,
+            username: foundUser.username,
+          },
+        },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: '30s' },
       );

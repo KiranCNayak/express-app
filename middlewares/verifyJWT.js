@@ -4,8 +4,8 @@ const jwt = require('jsonwebtoken');
 dotenv.config();
 
 const verifyJWT = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  if (!authHeader) {
+  const authHeader = req.headers.authorization || req.headers.Authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Authorization header is missing!' });
   }
 
@@ -17,7 +17,8 @@ const verifyJWT = (req, res, next) => {
       // More you give exact status / error type, more vulnerable for attacks.
       return res.status(403).json({ error: 'Invalid Token' });
     }
-    req.user = decoded.username;
+    req.roles = decoded.UserInfo.roles;
+    req.user = decoded.UserInfo.username;
     next();
   });
 };

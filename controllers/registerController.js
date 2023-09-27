@@ -3,6 +3,7 @@ const fs = require('node:fs');
 
 const bcrypt = require('bcrypt');
 
+const { ROLES_LIST } = require('../config/rolesList');
 const { logEvents } = require('../middlewares/logEvents');
 const users = require('../model/users.json');
 const { logError } = require('../utils/Utils');
@@ -34,6 +35,9 @@ const createNewUser = async (req, res) => {
     const newUser = {
       username,
       password: hashedPassword,
+      roles: {
+        USER: ROLES_LIST.USER,
+      },
     };
     usersDB.setUsers([...usersDB.users, newUser]);
 
