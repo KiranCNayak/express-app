@@ -4,9 +4,11 @@ const cookieParser = require('cookie-parser');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const express = require('express');
+const mongoose = require('mongoose');
 
 dotenv.config(); // Load all of the ENV variables before requiring any file that might use it
 
+const { connectDB } = require('./config/connectDB');
 const { corsOptions } = require('./config/corsOptions');
 const { errorHandler } = require('./middlewares/errorHandler');
 const { credentials } = require('./middlewares/credentials');
@@ -18,6 +20,8 @@ const { router: logoutRouter } = require('./routes/logout');
 const { router: refreshRouter } = require('./routes/refresh');
 const { router: registerRouter } = require('./routes/register');
 const { router: rootRouter } = require('./routes/root');
+
+connectDB();
 
 const app = express();
 
@@ -75,6 +79,9 @@ app.all('*', (req, res) => {
 // of all functions above it.
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+mongoose.connection.once('open', () => {
+  console.log('Connected to MongoDB');
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
 });
