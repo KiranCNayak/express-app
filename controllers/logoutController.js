@@ -1,18 +1,4 @@
-const fs = require('node:fs');
-const path = require('node:path');
-
-const users = require('../model/users.json');
-
-const fsPromises = fs.promises;
-
-const ONE_DAY_IN_MILLIS = 24 * 60 * 60 * 1000;
-
-const usersDB = {
-  users,
-  setUsers: function (data) {
-    this.users = data;
-  },
-};
+const User = require('../model/User');
 
 const handleLogout = async (req, res) => {
   // REM: If you are developing a front end as well, you will have to remove both accessToken and refreshToken on Logout.
@@ -27,9 +13,7 @@ const handleLogout = async (req, res) => {
 
   const refreshToken = cookies.jwt;
 
-  const foundUser = usersDB.users.find(
-    user => user.refreshToken === refreshToken,
-  );
+  const foundUser = await User.findOne({ refreshToken }).exec();
 
   if (!foundUser) {
     // Clear the cookie, since the cookie with 'jwt' property was found
@@ -45,22 +29,9 @@ const handleLogout = async (req, res) => {
   }
 
   // If the control reached this point, that means there is a cookie and
-  //  that data is present in the DB (For now it is just a JSON file).
-  const otherUsers = usersDB.users.filter(
-    user => user.username !== foundUser.username,
-  );
-
-  // Set the refreshToken to blank string, to denote clearing it.
-  const currentUser = { ...foundUser, refreshToken: '' };
-
-  const updatedUsersArray = [...otherUsers, currentUser];
-
-  usersDB.setUsers(updatedUsersArray);
-
-  await fsPromises.writeFile(
-    path.join(__dirname, '..', 'model', 'users.json'),
-    JSON.stringify(updatedUsersArray, null, 2),
-  );
+  //  that refreshToken is present in the DB.
+  foundUser.refreshToken = '';
+  await foundUser.save();
 
   res.clearCookie('jwt', {
     httpOnly: true,

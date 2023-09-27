@@ -1,21 +1,9 @@
-const fs = require('node:fs');
-const path = require('node:path');
-
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const users = require('../model/users.json');
-
-const fsPromises = fs.promises;
+const User = require('../model/User');
 
 const ONE_DAY_IN_MILLIS = 24 * 60 * 60 * 1000;
-
-const usersDB = {
-  users,
-  setUsers: function (data) {
-    this.users = data;
-  },
-};
 
 const loginUser = async (req, res) => {
   const { username, password } = req.body;
@@ -24,7 +12,7 @@ const loginUser = async (req, res) => {
       message: "'username' and 'password' fields are required!",
     });
   }
-  const foundUser = usersDB.users.find(user => user.username === username);
+  const foundUser = await User.findOne({ username }).exec();
 
   if (!foundUser) {
     return res
@@ -47,26 +35,15 @@ const loginUser = async (req, res) => {
       { expiresIn: '30s' },
     );
 
-    // Refresh token is generally stored in disk. For now we are using the same DB (users.json).
     const refreshToken = jwt.sign(
       { username: foundUser.username },
       process.env.REFRESH_TOKEN_SECRET,
       { expiresIn: '1d' },
     );
 
-    const otherUsers = usersDB.users.filter(
-      user => user.username !== foundUser.username,
-    );
-
-    // Storing the refreshToken in the same object as the username and password.
-    const currentUser = { ...foundUser, refreshToken };
-
-    usersDB.setUsers([...otherUsers, currentUser]);
-
-    await fsPromises.writeFile(
-      path.join(__dirname, '..', 'model', 'users.json'),
-      JSON.stringify(usersDB.users, null, 2),
-    );
+    //Saving refreshToken with the current User to DB
+    foundUser.refreshToken = refreshToken;
+    await foundUser.save();
 
     // Some people send the refreshToken in this response.
     // But that would make the Front-end guy to store it
