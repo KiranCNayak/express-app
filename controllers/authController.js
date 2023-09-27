@@ -3,13 +3,10 @@ const path = require('node:path');
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const dotenv = require('dotenv');
 
 const users = require('../model/users.json');
 
 const fsPromises = fs.promises;
-
-dotenv.config();
 
 const ONE_DAY_IN_MILLIS = 24 * 60 * 60 * 1000;
 

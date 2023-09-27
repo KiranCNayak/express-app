@@ -2,7 +2,10 @@ const path = require('node:path');
 
 const cookieParser = require('cookie-parser');
 const cors = require('cors');
+const dotenv = require('dotenv');
 const express = require('express');
+
+dotenv.config(); // Load all of the ENV variables before requiring any file that might use it
 
 const { corsOptions } = require('./config/corsOptions');
 const { errorHandler } = require('./middlewares/errorHandler');
