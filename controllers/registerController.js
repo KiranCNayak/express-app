@@ -26,7 +26,7 @@ const createNewUser = async (req, res) => {
       password: hashedPassword,
     });
 
-    res.status(201).json({
+    return res.status(201).json({
       message: `New user '${username}' created successfully!`,
     });
   } catch (error) {
@@ -35,7 +35,7 @@ const createNewUser = async (req, res) => {
       `${error.name}: ${error.message} on ${req.method} call to ${req.url} in 'createNewUser' function`,
       'errorLogs.txt',
     );
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 };
 

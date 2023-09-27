@@ -13,7 +13,9 @@ const connectDB = async () => {
       `${error.name}: ${error.message} in 'connectDB' file, while trying to connect to MongoDB Server`,
       'errorLogs.txt',
     );
-    console.error(error.stack);
+    console.error(
+      `${error.message}\nLook at 'logs/errorLogs.txt' for more details\n`,
+    );
   }
 };
 

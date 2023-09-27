@@ -1,105 +1,130 @@
-const employees = require('../model/employees.json');
+const Employee = require('../model/Employee');
 
-const data = {
-  employees,
-  setEmployees: function (data) {
-    this.employees = data;
-  },
-};
-
-const createEmployee = (req, res) => {
-  const newEmployee = {
-    id: data.employees?.length
-      ? data.employees[data.employees.length - 1].id + 1
-      : 1,
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-  };
-
-  if (!newEmployee.firstName || !newEmployee.lastName) {
+const createEmployee = async (req, res) => {
+  const { firstName, lastName } = req.body;
+  if (!firstName || !lastName) {
     return res.status(400).json({
       message: 'First and Last names are required!',
     });
   }
-
-  data.setEmployees([...data.employees, newEmployee]);
-  res.status(201).json(data.employees);
+  try {
+    await Employee.create({
+      firstName,
+      lastName,
+    });
+    return res.status(201).json({
+      message: `Added ${firstName} ${lastName} to 'employees' collection`,
+    });
+  } catch (error) {
+    logEvents(
+      `${error.name}: ${error.message} on ${req.method} call to ${req.url} in 'createEmployee' function`,
+      'errorLogs.txt',
+    );
+    return res.status(500).json({ error: error.message });
+  }
 };
 
-const deleteEmployee = (req, res) => {
+const deleteEmployee = async (req, res) => {
   const { id } = req.body;
 
   if (!id) {
-    res.json({ error: "Required parameter 'id' was not sent in the request." });
-  }
-
-  const employee = data.employees.find(emp => emp.id === parseInt(id));
-
-  // If the id searched doesn't exist in our DB, then employees.find() will return undefined.
-  if (!employee) {
     return res.status(400).json({
-      message: `Employee with id = ${id} was not found!`,
+      error: "Required parameter 'id' was not sent in the request body",
     });
   }
 
-  const filteredArray = data.employees.filter(emp => emp.id !== parseInt(id));
-  const requiredArray = [...filteredArray];
+  const foundEmployee = await Employee.findOne({
+    _id: id,
+  }).exec();
 
-  data.setEmployees(requiredArray);
+  // If the id searched doesn't exist in our DB, then employees.find() will return undefined.
+  if (!foundEmployee) {
+    return res.status(400).json({
+      error: `There is no employee with id = ${id}! Try again.`,
+    });
+  }
+
+  await Employee.deleteOne({
+    _id: id,
+  });
 
   // Send 204 status if you don't want to send data back to the client.
   //  204 — represents "No Content". More at https://www.rfc-editor.org/rfc/rfc9110.html#name-204-no-content
-  res.status(200).json(data.employees);
+  return res.status(200).json({
+    message: `Deleted record of ${foundEmployee.firstName} ${foundEmployee.lastName}`,
+  });
 };
 
-const getAllEmployees = (_req, res) => {
-  res.json(data.employees);
+const getAllEmployees = async (_req, res) => {
+  const employees = await Employee.find();
+  if (!employees) {
+    return res.status(204).json({ message: 'No employees found! ❌' });
+  }
+  return res.json(employees);
 };
 
-const getEmployeeById = (req, res) => {
+const getEmployeeById = async (req, res) => {
   const { id } = req.params;
-  if (!id) {
-    res
-      .status(400)
-      .json({ error: "Required parameter 'id' was not sent in the request." });
-  }
-  const filteredEmployee = data.employees.filter(
-    emp => emp.id === parseInt(id),
-  );
-  res.json(filteredEmployee);
-};
-
-const updateEmployee = (req, res) => {
-  const { firstName, id, lastName } = req.body;
 
   if (!id) {
-    res.json({ error: "Required parameter 'id' was not sent in the request." });
-  }
-
-  const employee = data.employees.find(emp => emp.id === parseInt(id));
-
-  // If the id searched doesn't exist in our DB, then employees.find() will return undefined.
-  if (!employee) {
     return res.status(400).json({
-      message: `Employee with id=${id} was not found!`,
+      error: "Required parameter 'id' was not sent in the request body",
     });
   }
 
-  if (firstName) {
-    employee.firstName = firstName;
+  const foundEmployee = await Employee.findOne({
+    _id: id,
+  }).exec();
+
+  if (!foundEmployee) {
+    return res.status(400).json({
+      error: `There is no employee with id = ${id}! Try again.`,
+    });
   }
-  if (lastName) {
-    employee.lastName = lastName;
+
+  return res.json(foundEmployee);
+};
+
+const updateEmployee = async (req, res) => {
+  const { firstName, id, lastName } = req.body;
+
+  if (!id) {
+    return res.status(400).json({
+      error: "Required parameter 'id' was not sent in the request body",
+    });
   }
 
-  const filteredArray = data.employees.filter(emp => emp.id !== parseInt(id));
-  const unsortedArray = [...filteredArray, employee];
+  try {
+    const foundEmployee = await Employee.findOne({
+      _id: id,
+    }).exec();
 
-  data.setEmployees(
-    unsortedArray.sort((a, b) => (a.id > b.id ? 1 : a.id < b.id ? -1 : 0)),
-  );
+    // If the id searched doesn't exist in our DB, then Employee.findOne() will return undefined.
+    if (!foundEmployee) {
+      return res.status(400).json({
+        error: `There is no employee with id = ${id}! Try again.`,
+      });
+    }
 
-  res.status(200).json(data.employees);
+    if (firstName) {
+      foundEmployee.firstName = firstName;
+    }
+    if (lastName) {
+      foundEmployee.lastName = lastName;
+    }
+
+    const result = await foundEmployee.save();
+
+    return res.status(200).json(result);
+  } catch (error) {
+    console.log(error.message);
+    if (error.message.startsWith('Cast to ObjectId failed for value')) {
+      return res
+        .status(400)
+        .json({ error: `There is no employee with id = ${id}! Try again.` });
+    }
+    return res.status(404).json(error);
+  }
 };
 
 module.exports = {
